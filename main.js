@@ -6,8 +6,8 @@ const CONFIG = {
   REDIRECT_URI: "https://jdm222012.github.io/instrumentify/", // must match Spotify dashboard
   SOUND_CLOUD_CLIENT_ID: "MaZ7bR62GvbulJgV8EUjQnHfbZGDEKaI",
   JAMENDO_CLIENT_ID: "e4cc60a9",
-  MODEL_CDN_URL_TINY: "https://huggingface.co/yourname/instrumentify/resolve/main/htdemucs_tiny.onnx",
-  MODEL_CDN_URL_MEDIUM: "https://huggingface.co/yourname/instrumentify/resolve/main/htdemucs_medium.onnx"
+  MODEL_CDN_URL_TINY: "https://huggingface.co/webai-community/models/resolve/main/demucs.onnx",
+  MODEL_CDN_URL_MEDIUM: "https://huggingface.co/webai-community/models/resolve/main/demucs.onnx"
 };
 
 // ----- Global array to store processed tracks -----
