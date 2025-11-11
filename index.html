@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Instrumentify — Playlist → Instrumentals</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link id="theme-stylesheet" rel="stylesheet" href="simple.css">
+</head>
+<body>
+  <!-- Theme chooser modal -->
+  <div id="theme-modal" class="modal">
+    <div class="modal-content">
+      <h2>Choose interface style</h2>
+      <p>Pick a UI mode — you can change later by reloading.</p>
+      <div class="choices">
+        <button id="btn-simple">🪶 Simple</button>
+        <button id="btn-styled">🎨 Styled</button>
+      </div>
+      <small style="display:block;margin-top:10px;">Model will lazy-load from CDN when you run separation.</small>
+    </div>
+  </div>
+
+  <div id="app" class="container" hidden>
+    <header>
+      <h1>Instrumentify — Playlist → Instrumentals</h1>
+      <p id="subtitle">Paste a Spotify playlist URL or sign in (recommended) to fetch playlists.</p>
+    </header>
+
+    <section class="controls">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="playlistInput" placeholder="https://open.spotify.com/playlist/..." style="flex:1;" />
+        <button id="btn-login">Sign in with Spotify</button>
+        <button id="fetchPlaylist">Fetch</button>
+      </div>
+
+      <div style="margin-top:8px;">
+        <label for="separationQuality">Quality (auto-detected default)</label>
+        <select id="separationQuality">
+          <option value="auto" selected>Auto (selects tiny/medium)</option>
+          <option value="tiny">Tiny (fast)</option>
+          <option value="medium">Medium (better)</option>
+        </select>
+      </div>
+    </section>
+
+    <section id="playlistArea"></section>
+
+    <footer>
+      <small>Only process files you have rights to. SoundCloud downloads used only when `downloadable: true` or Creative Commons.</small>
+    </footer>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
