@@ -4,12 +4,10 @@
 // Works with Spotify PKCE auth + legal download sources + ONNX-based demixing.
 
 const CONFIG = {
-  SPOTIFY_CLIENT_ID: "YOUR_SPOTIFY_CLIENT_ID_HERE", // from https://developer.spotify.com/dashboard
+  SPOTIFY_CLIENT_ID: "12816f1d032446ed85e1872ca5dc952b", // from https://developer.spotify.com/dashboard
   REDIRECT_URI: window.location.origin + "/",        // Must match your GitHub Pages domain
-  SOUND_CLOUD_CLIENT_ID: "YOUR_SOUNDCLOUD_ID_HERE",
-  JAMENDO_CLIENT_ID: "YOUR_JAMENDO_ID_HERE",
-  PIXABAY_API_KEY: "YOUR_PIXABAY_KEY_HERE",
-
+  SOUND_CLOUD_CLIENT_ID: "MaZ7bR62GvbulJgV8EUjQnHfbZGDEKaI",
+  JAMENDO_CLIENT_ID: "e4cc60a9",
   MODEL_CDN_URL_TINY: "https://huggingface.co/yourname/instrumentify/resolve/main/htdemucs_tiny.onnx",
   MODEL_CDN_URL_MEDIUM: "https://huggingface.co/yourname/instrumentify/resolve/main/htdemucs_medium.onnx"
 };
@@ -105,39 +103,63 @@ async function fetchPlaylistTracks(url) {
   }));
 }
 
-// ----- 4️⃣ Legal source finder -----
+// ----- 4️⃣ Legal source finder (updated) -----
+async function getSCClientID() {
+  // Attempt to auto-extract a public client_id from SoundCloud homepage
+  try {
+    const resp = await fetch("https://soundcloud.com/");
+    const text = await resp.text();
+    const match = text.match(/client_id:"(\w+)"/);
+    return match ? match[1] : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function findTrackSource(title, artist) {
   const q = encodeURIComponent(`${artist} ${title}`);
 
-  // 1️⃣ SoundCloud
+  // 1️⃣ SoundCloud (downloadable/public tracks only)
   try {
-    const sc = await fetch(`https://api-v2.soundcloud.com/search/tracks?q=${q}&client_id=${CONFIG.SOUND_CLOUD_CLIENT_ID}`);
-    const scData = await sc.json();
-    const downloadable = scData.collection.find(t => t.downloadable);
-    if (downloadable) return downloadable.download_url + "?client_id=" + CONFIG.SOUND_CLOUD_CLIENT_ID;
-  } catch (e) {}
+    const scClientID = CONFIG.SOUND_CLOUD_CLIENT_ID || await getSCClientID();
+    if (scClientID) {
+      const sc = await fetch(`https://api-v2.soundcloud.com/search/tracks?q=${q}&client_id=${scClientID}`);
+      const scData = await sc.json();
+      const downloadable = scData.collection.find(t => t.downloadable);
+      if (downloadable) return downloadable.download_url + "?client_id=" + scClientID;
+    }
+  } catch (e) {
+    console.warn("SoundCloud fetch failed", e);
+  }
 
   // 2️⃣ Jamendo
   try {
     const jm = await fetch(`https://api.jamendo.com/v3.0/tracks/?client_id=${CONFIG.JAMENDO_CLIENT_ID}&format=json&limit=1&search=${q}`);
     const jmData = await jm.json();
     if (jmData.results.length) return jmData.results[0].audio;
-  } catch (e) {}
+  } catch (e) {
+    console.warn("Jamendo fetch failed", e);
+  }
 
-  // 3️⃣ Pixabay
+  // 3️⃣ ccMixter
   try {
-    const px = await fetch(`https://pixabay.com/api/audio/?key=${CONFIG.PIXABAY_API_KEY}&q=${q}`);
-    const pxData = await px.json();
-    if (pxData.hits.length) return pxData.hits[0].audio;
-  } catch (e) {}
+    const cc = await fetch(`https://ccmixter.org/api/query?f=mp3&q=${q}&licenses=cc-by,cc-by-sa`);
+    const ccData = await cc.json();
+    if (ccData.length) return ccData[0].downloadUrl;
+  } catch (e) {
+    console.warn("ccMixter fetch failed", e);
+  }
 
-  // 4️⃣ FMA (no key needed)
+  // 4️⃣ Free Music Archive
   try {
     const fm = await fetch(`https://freemusicarchive.org/api/get/tracks.json?track_title=${q}`);
     const fmData = await fm.json();
     if (fmData.dataset && fmData.dataset.length) return fmData.dataset[0].track_url;
-  } catch (e) {}
+  } catch (e) {
+    console.warn("FMA fetch failed", e);
+  }
 
+  // No legal source found
   return null;
 }
 
