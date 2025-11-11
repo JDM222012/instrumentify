@@ -5,7 +5,7 @@
 
 const CONFIG = {
   SPOTIFY_CLIENT_ID: "12816f1d032446ed85e1872ca5dc952b", // from https://developer.spotify.com/dashboard
-  REDIRECT_URI: window.location.origin + "/",        // Must match your GitHub Pages domain
+  REDIRECT_URI: window.location.origin + "https://jdm222012.github.io/instrumentify/",        // Must match your GitHub Pages domain
   SOUND_CLOUD_CLIENT_ID: "MaZ7bR62GvbulJgV8EUjQnHfbZGDEKaI",
   JAMENDO_CLIENT_ID: "e4cc60a9",
   MODEL_CDN_URL_TINY: "https://huggingface.co/yourname/instrumentify/resolve/main/htdemucs_tiny.onnx",
